@@ -224,5 +224,7 @@ func run(cli *cli.Context, cfg rancher.Options) error {
 		return err
 	}
 
+	logrus.Infof("My Custom Rancher Image is running")
+
 	return server.ListenAndServe(ctx)
 }
