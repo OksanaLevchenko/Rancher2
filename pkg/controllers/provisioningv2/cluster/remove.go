@@ -3,6 +3,8 @@ package cluster
 import (
 	"fmt"
 	"time"
+        "os"
+        "github.com/sirupsen/logrus"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
@@ -16,10 +18,16 @@ import (
 )
 
 func (h *handler) OnMgmtClusterRemove(_ string, cluster *v3.Cluster) (*v3.Cluster, error) {
+
+        if os.Getenv("DISABLE_CLUSTER_REMOVAL") == "true" {
+           	logrus.Infof("Логика удаления кластера отключена для кластера %s", cluster.Name)
+           	return cluster, nil
+        }
 	provisioningClusters, err := h.clusterCache.GetByIndex(ByCluster, cluster.Name)
 	if err != nil {
 		return nil, err
 	}
+
 
 	var legacyCluster bool
 	for _, provisioningCluster := range provisioningClusters {
